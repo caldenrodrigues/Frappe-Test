@@ -1,3 +1,3 @@
-ip = "http://localhost:8000";
+var ip = "http://localhost:5000";
 
 module.exports = {ip}

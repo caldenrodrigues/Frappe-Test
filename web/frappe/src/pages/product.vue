@@ -66,11 +66,12 @@
 </template>
 
 <script>
-//import axios from 'axios';
-// var {ip} = require('./IP.js')
+import axios from 'axios';
+var {ip} = require('../IP.js')
 export default {
   data(){
     return {
+      ip:'',
       dialog: false,
       headers: [{text:"ID",value:"id"},{text:"Name",value:"name"},{text:"Description",value:"description"},{ text: 'Actions', value: 'action', sortable: false }],
       products: [],
@@ -83,7 +84,6 @@ export default {
         name: '',
         description: ''
       },
-      //products: [{id:"001",name:"Calden",description:"Lmao"}]
     }
   },
   computed: {
@@ -93,6 +93,7 @@ export default {
   },
 
   created () {
+    this.ip = ip
     this.initialize()
   },
   methods: {
@@ -121,7 +122,15 @@ export default {
       if (this.editedIndex > -1) {
         Object.assign(this.products[this.editedIndex], this.editedItem)
       } else {
-        this.products.push(this.editedItem)
+        const product = this.editedItem
+        axios.post(`${ip}/addProduct`, product)
+        .then((res) => {
+          console.log(res.data)
+          this.products.push(this.editedItem)
+        })
+        .catch((err) => {
+          console.log(err)
+        })
       }
       //this.close()
       this.dialog = false
