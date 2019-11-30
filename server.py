@@ -94,5 +94,39 @@ def delLocation():
     return getLocation()
 
 
+@app.route('/move/getProduct', methods = ['POST'], endpoint='move_getProduct')
+def move_getProduct():
+    req = request.get_json()
+    cur.execute("Select product_id,name,description,sum(qty) from ProductMovement,Product where to_location=%s and product_id = Product.id group by product_id",(int(req["location"]),))
+    res = cur.fetchall()
+    mydb.commit()
+    jsonArr = []
+    print(res)
+    for i in res:
+        jsonArr.append({"id":i[0],"name":i[1],"description":i[2],"quantity":str(i[3])})
+    jsonRes = {}
+    jsonRes["products"] = jsonArr
+    return jsonify(jsonRes)
+
+def move_getProduct(location):
+    cur.execute("Select product_id,name,description,sum(qty) from ProductMovement,Product where to_location=%s and product_id = Product.id group by product_id",(int(location),))
+    res = cur.fetchall()
+    mydb.commit()
+    jsonArr = []
+    print(res)
+    for i in res:
+        jsonArr.append({"id":i[0],"name":i[1],"description":i[2],"quantity":str(i[3])})
+    jsonRes = {}
+    jsonRes["products"] = jsonArr
+    return jsonify(jsonRes)
+
+@app.route('/move/importProduct', methods = ['POST'], endpoint='importProduct')
+def importProduct():
+    req = request.get_json()
+    print(req)
+    cur.execute("INSERT INTO ProductMovement(to_location, product_id, qty) values(%s,%s,%s)",(int(req["location"]),int(req["product"]),int(req["quantity"])))
+    mydb.commit()
+    return move_getProduct(req["location"])
+
 if __name__ == '__main__':
     app.run(debug = True)
