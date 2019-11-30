@@ -98,18 +98,33 @@ export default {
   },
   methods: {
     initialize () {
-      this.products = [{id:"001",name:"Calden",description:"Lmao"},{id:"002",name:"Alden",description:"LmaoLMAO"}]
+      //this.products = [{id:"001",name:"Calden",description:"Lmao"},{id:"002",name:"Alden",description:"LmaoLMAO"}]
+      axios.post(`${ip}/getProduct`)
+      .then((res) => {
+        console.log(res.data)
+        this.products = res.data.products
+      })
+      .catch((err) => {
+        console.log(err)
+      })
     },
 
     editItem (item) {
       this.editedIndex = this.products.indexOf(item)
       this.editedItem = Object.assign({}, item)
+      console.log(item.id)
       this.dialog = true
     },
 
     deleteItem (item) {
-      const index = this.products.indexOf(item)
-      confirm('Are you sure you want to delete this item?') && this.products.splice(index, 1)
+      const id = item.id
+      axios.post(`${ip}/delProduct`,{id})
+      .then((res) => {
+        this.products = res.data.products
+      })
+      .catch((err) => {
+        console.log(err)
+      })
     },
 
     close () {
@@ -120,17 +135,29 @@ export default {
 
     save () {
       if (this.editedIndex > -1) {
-        Object.assign(this.products[this.editedIndex], this.editedItem)
-      } else {
+
+        //Object.assign(this.products[this.editedIndex], this.editedItem)
         const product = this.editedItem
-        axios.post(`${ip}/addProduct`, product)
+        axios.post(`${ip}/editProduct`,product)
         .then((res) => {
-          console.log(res.data)
-          this.products.push(this.editedItem)
+          this.products = res.data.products
         })
         .catch((err) => {
           console.log(err)
         })
+
+      } else {
+
+        const product = this.editedItem
+        axios.post(`${ip}/addProduct`, product)
+        .then((res) => {
+          console.log(res.data)
+          this.products = res.data.products
+        })
+        .catch((err) => {
+          console.log(err)
+        })
+
       }
       //this.close()
       this.dialog = false
