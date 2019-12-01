@@ -7,6 +7,7 @@ A simple "Inventory Management Web Application"
 + [File Structure](#file_structure)
 + [Contributing](#contributing)
 + [Author](#authors)
++ [Screenshots](#screens)
 
 ## About<a name="description"></a>
 + A web application using Flask framework to manage inventory of a list of products in respective warehouses.
@@ -83,3 +84,13 @@ and Flask will be serving on https://localhost:5000/
 ## Author<a name="authors"></a>
 
 + [Calden Rodrigues](https://github.com/caldenrodrigues) <br>
+
+## Screenshots<a name="screens"></a>
+## Products
+![Product](https://i.imgur.com/AHb1MRA.png)
+## Locations
+![Location](https://i.imgur.com/AjEu1jJ.png)
+## Product Movement
+![Product Movement](https://i.imgur.com/6mhu8Ys.png)
+## Move Product
+![Move Product](https://i.imgur.com/w70YSgZ.png)
