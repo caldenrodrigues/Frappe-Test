@@ -1,4 +1,4 @@
-from flask import Flask
+from flask import Flask, abort
 from flask import request
 from flask import jsonify
 from flask_cors import CORS, cross_origin
@@ -114,36 +114,50 @@ def move_getProduct(location):
     res = cur.fetchall()
     mydb.commit()
     jsonArr = []
-    print(res)
+    #print(res)
     for i in res:
         jsonArr.append({"id":i[0],"name":i[1],"description":i[2],"quantity":str(i[3])})
     jsonRes = {}
     jsonRes["products"] = jsonArr
-    return jsonify(jsonRes)
+    #print(jsonRes)
+    return jsonRes
 
 @app.route('/move/importProduct', methods = ['POST'], endpoint='importProduct')
 def importProduct():
     req = request.get_json()
-    print(req)
+    #print(req)
     cur.execute("INSERT INTO ProductMovement(to_location, product_id, qty) values(%s,%s,%s)",(int(req["location"]),int(req["product"]),int(req["quantity"])))
     mydb.commit()
-    return move_getProduct(req["location"])
+    return jsonify(move_getProduct(req["location"]))
 
 @app.route('/move/exportProduct', methods = ['POST'], endpoint='exportProduct')
 def exportProduct():
     req = request.get_json()
-    print(req)
-    cur.execute("INSERT INTO ProductMovement(from_location, product_id, qty) values(%s,%s,%s)",(int(req["location"]),int(req["product"]),int(req["quantity"])))
-    mydb.commit()
-    return move_getProduct(req["location"])
+    if checkProduct(req["location"], req["product"], req["quantity"]):
+        cur.execute("INSERT INTO ProductMovement(from_location, product_id, qty) values(%s,%s,%s)",(int(req["location"]),int(req["product"]),int(req["quantity"])))
+        mydb.commit()
+        return jsonify(move_getProduct(req["location"]))
+    return abort(403)
 
 @app.route('/move/move', methods = ['POST'], endpoint='moveProduct')
 def moveProduct():
     req = request.get_json()
-    print(req)
-    cur.execute("INSERT INTO ProductMovement(from_location, to_location, product_id, qty) values(%s,%s,%s,%s)",(int(req["location"]),int(req["moveLocation"]),int(req["product"]),int(req["quantity"])))
-    mydb.commit()
-    return move_getProduct(req["location"])
+    if checkProduct(req["location"], req["product"], req["quantity"]):
+        cur.execute("INSERT INTO ProductMovement(from_location, to_location, product_id, qty) values(%s,%s,%s,%s)",(int(req["location"]),int(req["moveLocation"]),int(req["product"]),int(req["quantity"])))
+        mydb.commit()
+        return jsonify(move_getProduct(req["location"]))
+    return abort(403)
+
+def checkProduct(location, product, quantity):
+    #print(move_getProduct(location))
+    list = move_getProduct(location)["products"]
+    #print(list)
+    #print(location, product, quantity)
+    for i in list:
+        if i["id"] == product and int(i["quantity"]) >= int(quantity):
+            print(i["id"],i["quantity"],quantity)
+            return True
+    return False
 
 if __name__ == '__main__':
     app.run(debug = True)

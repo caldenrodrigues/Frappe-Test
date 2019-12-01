@@ -134,7 +134,7 @@
                             <v-col cols="12">
                               <v-combobox
                                 v-model="locationSelected"
-                                :items="locations"
+                                :items="locationsAllowed"
                                 item-text="name"
                                 label="Select a Location"
                                 color="#5E64FF"
@@ -191,6 +191,7 @@ export default {
       locationSelected: "",
       headers: [{text:"ID",value:"id"},{text:"Name",value:"name"},{text:"Description",value:"description"}, {text:"Quantity", value:"quantity"}],
       locations: [],
+      locationsAllowed: [],
       products: [],
       productsLocation: [],
       location: "",
@@ -203,12 +204,15 @@ export default {
     this.initialize()
   },
   methods: {
+    clear() {
+      this.productSelected = ""
+      this.locationSelected = ""
+      this.quantity = 0
+    },
     initialize () {
       axios.post(`${ip}/getLocation`)
       .then((res) => {
-        console.log(res.data)
         this.locations = res.data.locations
-
         axios.post(`${ip}/getProduct`)
         .then((res) => {
           console.log(res.data)
@@ -223,8 +227,6 @@ export default {
         console.log(err)
       })
 
-
-
     },
     changedLocation() {
       //console.log(this.location.id)
@@ -236,6 +238,17 @@ export default {
         this.moveDialog = false
         return
       }
+
+      this.locationsAllowed = this.locations.slice()
+      for( var i = 0; i < this.locationsAllowed.length; i++){
+         if ( this.locationsAllowed[i].id == this.location.id) {
+           this.locationsAllowed.splice(i,1)
+         }
+      }
+      console.log("Hey")
+      console.log(this.locations)
+      console.log(this.locationsAllowed)
+
       const location = this.location.id
       axios.post(`${ip}/move/getProduct`,{location})
       .then((res) => {
@@ -268,6 +281,7 @@ export default {
         this.productsLocation = res.data.products
         this.text = "Successfully imported"
         this.snackbar = true
+        this.clear()
       })
       .catch((err) => {
         console.log(err)
@@ -298,6 +312,7 @@ export default {
         this.productsLocation = res.data.products
         this.text = "Successfully exported"
         this.snackbar = true
+        this.clear()
       })
       .catch((err) => {
         console.log(err)
@@ -331,6 +346,7 @@ export default {
         this.productsLocation = res.data.products
         this.text = "Successfully moved"
         this.snackbar = true
+        this.clear()
       })
       .catch((err) => {
         console.log(err)
