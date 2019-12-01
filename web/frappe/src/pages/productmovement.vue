@@ -33,7 +33,7 @@
                   <v-spacer></v-spacer>
                   <v-dialog v-model="importDialog" max-width="500px">
                     <template v-slot:activator="{ on }">
-                      <v-btn color="#5E64FF" dark class="mb-2" v-on="on">Import Product</v-btn>
+                      <v-btn color="#5E64FF" dark class="ma-2" v-on="on">Import Product</v-btn>
                     </template>
                     <v-card>
                       <v-card-title>
@@ -68,6 +68,43 @@
                       </v-card-actions>
                     </v-card>
                   </v-dialog>
+                  <v-dialog v-model="exportDialog" max-width="500px">
+                    <template v-slot:activator="{ on }">
+                      <v-btn color="#e53935" dark class="ma-2" v-on="on">Export Product</v-btn>
+                    </template>
+                    <v-card>
+                      <v-card-title>
+                        <span class="headline">Export Product</span>
+                      </v-card-title>
+
+                      <v-card-text>
+                        <v-container>
+                          <v-row>
+                            <v-col cols="12">
+                              <v-combobox
+                                v-model="productSelected"
+                                :items="products"
+                                item-text="name"
+                                label="Select a Product"
+                                color="#5E64FF"
+                                return-object
+                                autofocus
+                              ></v-combobox>
+                            </v-col>
+                            <v-col cols="12">
+                              <v-text-field v-model="quantity" label="Quantity"></v-text-field>
+                            </v-col>
+                          </v-row>
+                        </v-container>
+                      </v-card-text>
+
+                      <v-card-actions>
+                        <v-spacer></v-spacer>
+                        <v-btn color="blue darken-1" text @click="closeExport">Cancel</v-btn>
+                        <v-btn color="blue darken-1" text @click="saveExport">Save</v-btn>
+                      </v-card-actions>
+                    </v-card>
+                  </v-dialog>
                 </v-toolbar>
               </template>
             </v-data-table>
@@ -85,6 +122,7 @@ export default {
   data(){
     return{
       importDialog: false,
+      exportDialog: false,
       productSelected: "",
       headers: [{text:"ID",value:"id"},{text:"Name",value:"name"},{text:"Description",value:"description"}, {text:"Quantity", value:"quantity"}],
       locations: [],
@@ -153,6 +191,26 @@ export default {
         console.log(err)
       })
       this.importDialog = false
+    },
+    closeExport() {
+      this.exportDialog = false
+    },
+    saveExport() {
+      const location = this.location.id
+      const product = this.productSelected.id
+      const quantity = this.quantity
+      axios.post(`${ip}/move/exportProduct`,{
+        location,
+        product,
+        quantity
+      })
+      .then((res) => {
+        this.productsLocation = res.data.products
+      })
+      .catch((err) => {
+        console.log(err)
+      })
+      this.exportDialog = false
     },
   }
 }

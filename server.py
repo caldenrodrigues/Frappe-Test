@@ -97,7 +97,7 @@ def delLocation():
 @app.route('/move/getProduct', methods = ['POST'], endpoint='move_getProduct')
 def move_getProduct():
     req = request.get_json()
-    cur.execute("Select product_id,name,description,sum(qty) from ProductMovement,Product where to_location=%s and product_id = Product.id group by product_id",(int(req["location"]),))
+    cur.execute("Select I.product_id, name, description, (I.sum - ifnull(E.sum,0)) as sum from (Select product_id,sum(qty) as sum from ProductMovement where from_location=%s group by product_id) as E RIGHT JOIN (Select product_id,sum(qty) as sum from ProductMovement where to_location=%s group by product_id) as I on I.product_id = E.product_id, Product where Product.id = I.product_id;",(int(req["location"]),int(req["location"])))
     res = cur.fetchall()
     mydb.commit()
     jsonArr = []
@@ -109,7 +109,8 @@ def move_getProduct():
     return jsonify(jsonRes)
 
 def move_getProduct(location):
-    cur.execute("Select product_id,name,description,sum(qty) from ProductMovement,Product where to_location=%s and product_id = Product.id group by product_id",(int(location),))
+    #367 character query :")
+    cur.execute("Select I.product_id, name, description, (I.sum - ifnull(E.sum,0)) as sum from (Select product_id,sum(qty) as sum from ProductMovement where from_location=%s group by product_id) as E RIGHT JOIN (Select product_id,sum(qty) as sum from ProductMovement where to_location=%s group by product_id) as I on I.product_id = E.product_id, Product where Product.id = I.product_id;",(int(location),int(location)))
     res = cur.fetchall()
     mydb.commit()
     jsonArr = []
@@ -125,6 +126,14 @@ def importProduct():
     req = request.get_json()
     print(req)
     cur.execute("INSERT INTO ProductMovement(to_location, product_id, qty) values(%s,%s,%s)",(int(req["location"]),int(req["product"]),int(req["quantity"])))
+    mydb.commit()
+    return move_getProduct(req["location"])
+
+@app.route('/move/exportProduct', methods = ['POST'], endpoint='exportProduct')
+def exportProduct():
+    req = request.get_json()
+    print(req)
+    cur.execute("INSERT INTO ProductMovement(from_location, product_id, qty) values(%s,%s,%s)",(int(req["location"]),int(req["product"]),int(req["quantity"])))
     mydb.commit()
     return move_getProduct(req["location"])
 
