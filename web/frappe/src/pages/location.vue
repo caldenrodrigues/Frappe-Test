@@ -116,9 +116,13 @@ export default {
       axios.post(`${ip}/delLocation`,{id})
       .then((res) => {
         this.locations = res.data.locations
+        this.text = "Successfully deleted location"
+        this.snackbar = true
       })
       .catch((err) => {
         console.log(err)
+        this.text = "Unsuccessfully deleted location"
+        this.snackbar = true
       })
     },
 
@@ -137,9 +141,13 @@ export default {
         .then((res) => {
           this.locations = res.data.locations
           this.editedItem = Object.assign({}, this.defaultItem)
+          this.text = "Successfully edited location"
+          this.snackbar = true
         })
         .catch((err) => {
           console.log(err)
+          this.text = "Unsuccessfully edited location"
+          this.snackbar = true
         })
 
       } else {
@@ -150,9 +158,13 @@ export default {
           //console.log(res.data)
           this.locations = res.data.locations
           this.editedItem = Object.assign({}, this.defaultItem)
+          this.text = "Successfully added location"
+          this.snackbar = true
         })
         .catch((err) => {
           console.log(err)
+          this.text = "unsuccessfully added location"
+          this.snackbar = true
         })
 
       }

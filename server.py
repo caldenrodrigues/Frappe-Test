@@ -137,5 +137,13 @@ def exportProduct():
     mydb.commit()
     return move_getProduct(req["location"])
 
+@app.route('/move/move', methods = ['POST'], endpoint='moveProduct')
+def moveProduct():
+    req = request.get_json()
+    print(req)
+    cur.execute("INSERT INTO ProductMovement(from_location, to_location, product_id, qty) values(%s,%s,%s,%s)",(int(req["location"]),int(req["moveLocation"]),int(req["product"]),int(req["quantity"])))
+    mydb.commit()
+    return move_getProduct(req["location"])
+
 if __name__ == '__main__':
     app.run(debug = True)

@@ -62,6 +62,21 @@
         </v-icon>
       </template>
     </v-data-table>
+    <v-snackbar
+        v-model="snackbar"
+        color="success"
+        :timeout=3000
+        :top=true
+      >
+        {{ text }}
+        <v-btn
+          dark
+          text
+          @click="snackbar = false"
+        >
+          Close
+        </v-btn>
+      </v-snackbar>
   </div>
 </template>
 
@@ -71,6 +86,8 @@ var {ip} = require('../IP.js')
 export default {
   data(){
     return {
+      snackbar: false,
+      text: "",
       ip:'',
       dialog: false,
       headers: [{text:"ID",value:"id"},{text:"Name",value:"name"},{text:"Description",value:"description"},{ text: 'Actions', value: 'action', sortable: false }],
@@ -112,7 +129,7 @@ export default {
     editItem (item) {
       this.editedIndex = this.products.indexOf(item)
       this.editedItem = Object.assign({}, item)
-      console.log(item.id)
+      //console.log(item.id)
       this.dialog = true
     },
 
@@ -121,9 +138,13 @@ export default {
       axios.post(`${ip}/delProduct`,{id})
       .then((res) => {
         this.products = res.data.products
+        this.text = "Successfully deleted product"
+        this.snackbar = true
       })
       .catch((err) => {
         console.log(err)
+        this.text = "Unsuccessfully deleted product"
+        this.snackbar = true
       })
     },
 
@@ -141,9 +162,13 @@ export default {
         axios.post(`${ip}/editProduct`,product)
         .then((res) => {
           this.products = res.data.products
+          this.text = "Successfully edited product"
+          this.snackbar = true
         })
         .catch((err) => {
           console.log(err)
+          this.text = "Unsuccessfully edited product"
+          this.snackbar = true
         })
 
       } else {
@@ -153,9 +178,13 @@ export default {
         .then((res) => {
           console.log(res.data)
           this.products = res.data.products
+          this.text = "Successfully added product"
+          this.snackbar = true
         })
         .catch((err) => {
           console.log(err)
+          this.text = "Unsuccessfully added product"
+          this.snackbar = true
         })
 
       }
